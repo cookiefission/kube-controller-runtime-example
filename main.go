@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -48,9 +50,28 @@ type ReplicaSetReconciler struct {
 }
 
 func (r *ReplicaSetReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
-	log := logf.Log.WithName("reconcile")
+	rs := &appsv1.ReplicaSet{}
+	err := r.Get(ctx, req.NamespacedName, rs)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
 
-	log.Info("Received reconciliation request", "namespace", req.Namespace, "name", req.Name)
+	pods := &corev1.PodList{}
+	err = r.List(ctx, pods, client.InNamespace(req.Namespace), client.MatchingLabels(rs.Spec.Template.Labels))
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	rs.Labels["pod-count"] = fmt.Sprintf("%v", len(pods.Items))
+	err = r.Update(ctx, rs)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
 
 	return reconcile.Result{}, nil
+}
+
+func (a *ReplicaSetReconciler) InjectClient(c client.Client) error {
+	a.Client = c
+	return nil
 }
