@@ -44,11 +44,6 @@ func not_main() {
 	}
 }
 
-// ReplicaSetReconciler is a simple ControllerManagedBy example implementation.
-type ReplicaSetReconciler struct {
-	client.Client
-}
-
 // Implement the business logic:
 // This function will be called when there is a change to a ReplicaSet or a Pod with an OwnerReference
 // to a ReplicaSet.
@@ -56,7 +51,7 @@ type ReplicaSetReconciler struct {
 // * Read the ReplicaSet
 // * Read the Pods
 // * Set a Label on the ReplicaSet with the Pod count.
-func (a *ReplicaSetReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
+func (a *ReplicaSetReconciler) eReconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 
 	rs := &appsv1.ReplicaSet{}
 	err := a.Get(ctx, req.NamespacedName, rs)
