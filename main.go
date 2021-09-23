@@ -31,6 +31,7 @@ func main() {
 	err = builder.
 		ControllerManagedBy(mgr).
 		For(&appsv1.ReplicaSet{}).
+		Owns(&corev1.Pod{}).
 		Complete(&ReplicaSetReconciler{})
 	if err != nil {
 		log.Error(err, "could not create controller")
