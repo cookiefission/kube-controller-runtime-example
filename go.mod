@@ -1,4 +1,4 @@
-module github.com/cookiefission/operator-example
+module github.com/cookiefission/kube-controller-runtime-example
 
 go 1.17
 
